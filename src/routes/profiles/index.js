@@ -25,10 +25,10 @@ router.get("/", async (req, res, next)=>{
     }
 })
 
-router.get("/:id", async (req, res, next)=>{
+router.get("/:username", async (req, res, next)=>{
     try{
-        const id = req.params.id
-        const profile = await profileSchema.findById(id)
+        
+        const profile = await profileSchema.findOne({ username : req.params.username})
         if (profile) {
           res.send(profile)
         } else {

@@ -9,7 +9,7 @@ const upload = multer();
 
 const imgPath = join(__dirname, "../../../public/img/experiences");
 
-router.get("/:username/experience", async (req, res, next) => {
+router.get("/:username/experiences", async (req, res, next) => {
   try {
     const getAllExp = await ExperienceModel.find({
       username: req.params.username,
@@ -21,7 +21,7 @@ router.get("/:username/experience", async (req, res, next) => {
   }
 });
 
-router.get("/:username/experience/:id", async (req, res, next) => {
+router.get("/:username/experiences/:id", async (req, res, next) => {
   try {
     const findUserExp = await ExperienceModel.findOne({
       username: req.params.username,
@@ -34,7 +34,7 @@ router.get("/:username/experience/:id", async (req, res, next) => {
   }
 });
 
-router.post("/:username/experience", async (req, res, next) => {
+router.post("/:username/experiences", async (req, res, next) => {
   try {
     const addExperience = new ExperienceModel(req.body);
     const { _id } = await addExperience.save();
@@ -46,7 +46,7 @@ router.post("/:username/experience", async (req, res, next) => {
 });
 
 router.post(
-  "/:username/experience/:id/picture",
+  "/:username/experiences/:id/picture",
   upload.single("picture"),
   async (req, res, next) => {
     try {
@@ -69,7 +69,7 @@ router.post(
   }
 );
 
-router.put("/:username/experience/:id", async (req, res, next) => {
+router.put("/:username/experiences/:id", async (req, res, next) => {
   try {
     delete req.body.username;
 
@@ -87,7 +87,7 @@ router.put("/:username/experience/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:username/experience/:id", async (req, res, next) => {
+router.delete("/:username/experiences/:id", async (req, res, next) => {
   try {
     const deletedExp = await ExperienceModel.findOneAndDelete({
       username: req.params.username,

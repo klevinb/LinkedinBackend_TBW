@@ -1,7 +1,13 @@
 const express = require("express");
 const ExperienceModel = require("./schema");
+const multer = require("multer");
+const { join } = require("path");
+const fs = require("fs-extra");
 
 const router = express.Router();
+const upload = multer();
+
+const imgPath = join(__dirname, "../../../public/img/experiences");
 
 router.get("/:username/experience", async (req, res, next) => {
   try {
@@ -39,6 +45,30 @@ router.post("/:username/experience", async (req, res, next) => {
   }
 });
 
+router.post(
+  "/:username/experience/:id/picture",
+  upload.single("picture"),
+  async (req, res, next) => {
+    try {
+      await fs.writeFile(
+        join(imgPath, `${req.params.id}.png`),
+        req.file.buffer
+      );
+
+      const savePicture = await ExperienceModel.findByIdAndUpdate(
+        { _id: req.params.id },
+        {
+          image: `http://localhost:${process.env.PORT}/img/experiences/${req.params.id}.png`,
+        }
+      );
+      if (savePicture) res.status(201).send("Uploaded");
+      else res.status(400).send("Something went wrong");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 router.put("/:username/experience/:id", async (req, res, next) => {
   try {
     delete req.body.username;
@@ -64,8 +94,12 @@ router.delete("/:username/experience/:id", async (req, res, next) => {
       _id: req.params.id,
     });
 
-    if (deletedExp) res.status(200).send("Deleted");
-    else res.status(400).send("Bad request");
+    if (deletedExp) {
+      if (fs.existsSync(join(imgPath, `${req.params.id}.png`))) {
+        await fs.unlink(join(imgPath, `${req.params.id}.png`));
+      }
+      res.status(200).send("Deleted");
+    } else res.status(400).send("Bad request");
   } catch (error) {
     next(error);
   }

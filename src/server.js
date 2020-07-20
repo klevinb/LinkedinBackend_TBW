@@ -16,6 +16,8 @@ server.use(express.static(publicPath));
 
 server.use("/api", apiRoutes);
 
+console.log(listEndpoints(server));
+
 mongoose
   .connect("mongodb://localhost:27017/LinkedinBackend_TBW", {
     useNewUrlParser: true,

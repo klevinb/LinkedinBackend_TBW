@@ -5,7 +5,7 @@ const { join } = require("path");
 const mongoose = require("mongoose");
 const apiRoutes = require("./routes/api");
 
-const port = process.env.PORT;
+const port = process.env.PORT || 3003;
 const publicPath = join(__dirname, "../public");
 
 const server = express();

@@ -77,7 +77,7 @@ router.post("/:id/upload", upload.single("profile"), async (req, res, next)=>{
               req.file.buffer
             );
       
-            const profile = await ProfileModel.findByIdAndUpdate(req.params.id, {
+            const profile = await profileSchema.findByIdAndUpdate(req.params.id, {
               image: `http://127.0.0.1:3003/img/profile/${req.params.id}.png`,
             });
             res.status(200).send("Done");

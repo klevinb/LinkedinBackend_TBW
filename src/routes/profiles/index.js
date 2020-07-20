@@ -4,6 +4,7 @@ const profileSchema = require("./schema")
 const router = express.Router()
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs-extra");
 
 const upload = multer();
 const imagePath = path.join(__dirname, "../../public/img/profile");
@@ -24,10 +25,10 @@ router.get("/", async (req, res, next)=>{
     }
 })
 
-router.get("/:id", async (req, res, next)=>{
+router.get("/:username", async (req, res, next)=>{
     try{
-        const id = req.params.id
-        const profile = await profileSchema.findById(id)
+        
+        const profile = await profileSchema.findOne({ username : req.params.username})
         if (profile) {
           res.send(profile)
         } else {
@@ -76,7 +77,7 @@ router.post("/:id/upload", upload.single("profile"), async (req, res, next)=>{
               req.file.buffer
             );
       
-            const profile = await ProfileModel.findByIdAndUpdate(req.params.id, {
+            const profile = await profileSchema.findByIdAndUpdate(req.params.id, {
               image: `http://127.0.0.1:3003/img/profile/${req.params.id}.png`,
             });
             res.status(200).send("Done");

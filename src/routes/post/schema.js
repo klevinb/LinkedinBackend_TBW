@@ -7,7 +7,7 @@ const PostSchema = new Schema({
     image: String,
     username: String,
    
-    users: [{ type: Schema.Types.ObjectId, ref: "Profile" }],
+    users: [{ type: Schema.Types.ObjectId, ref: "profile" }],
     
 },
   { timestamps: true }

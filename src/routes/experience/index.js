@@ -50,10 +50,13 @@ router.get("/:username/experiences", async (req, res, next) => {
 
 router.get("/:username/experiences/:id", async (req, res, next) => {
   try {
-    const findUserExp = await ExperienceModel.findOne({
-      username: req.params.username,
-      _id: req.params.id,
-    });
+    const findUserExp = await ExperienceModel.findOne(
+      {
+        username: req.params.username,
+        _id: req.params.id,
+      },
+      ""
+    );
     if (findUserExp) res.status(200).send(findUserExp);
     else res.status(404).send("Not found");
   } catch (error) {

@@ -4,6 +4,7 @@ const cors = require("cors");
 const { join } = require("path");
 const mongoose = require("mongoose");
 const apiRoutes = require("./routes/api");
+const { notFound, badRequest, generalError } = require("./errorHandlers");
 
 const port = process.env.PORT || 3003;
 const publicPath = join(__dirname, "../public");
@@ -15,6 +16,10 @@ server.use(cors());
 server.use(express.static(publicPath));
 
 server.use("/api", apiRoutes);
+
+server.use(notFound);
+server.use(badRequest);
+server.use(generalError);
 
 console.log(listEndpoints(server));
 

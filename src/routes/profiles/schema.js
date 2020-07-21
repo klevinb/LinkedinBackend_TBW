@@ -1,41 +1,43 @@
-const {Schema, model} = require("mongoose")
+const { Schema } = require("mongoose");
+const mongoose = require("mongoose");
 
-const profileSchema = new Schema({
-    name:{
-        type: String,
-        required: true,
+const profileSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
     },
-    surname:{
-        type: String,
-        required: true,
+    surname: {
+      type: String,
+      required: true,
     },
-    email:{
-        type: String,
-        required: true,
+    email: {
+      type: String,
+      required: true,
     },
-    bio:{
-        type: String,
-        required: true,
+    bio: {
+      type: String,
+      required: true,
     },
-    title:{
-        type: String,
-        required: true,
+    title: {
+      type: String,
+      required: true,
     },
-    area:{
-        type: String,
-        required: true,
+    area: {
+      type: String,
+      required: true,
     },
-    image:{
-        type: String
+    image: {
+      type: String,
     },
-    username:{
-        type: String,
-        required: true,
+    username: {
+      type: String,
+      required: true,
     },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-
-})
-
-profileSchema.set('timestamps', true);
-
-module.exports = model("profile", profileSchema)
+module.exports = mongoose.model("profile", profileSchema);

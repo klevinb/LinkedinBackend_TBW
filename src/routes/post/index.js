@@ -66,24 +66,25 @@ router.post("/", async (req, res, next) => {
   
   router.delete("/:id", async (req, res, next) => {
     try {
-      const post = await PostsModel.findByIdAndDelete(req.params.id, async (err) => {
-        if(err) {
-          console.log(err)
-
+      const post = await PostsModel.findByIdAndDelete (req.params.id)
+      if(post){
+        fs.unlink(imgFolderPath + `${req.params.id}.png`, (err) => {
+          if (err) {
+          
+            console.log("failed to delete local image:"+ err);
+            res.status(404).send('Not Found')
         } else {
-         /*  fs.unlink(imgFolderPath+req.file.filename, (err) => {
-            if (err) {
-              console.log("failed to delete local image:"+err);
-          } else {
-              console.log('successfully deleted local image');                                
-          }
-          }) */
-          const deleteImg = await fs.emptyDir (imgFolderPath);
-
+          res.status(200).send('Deleted')                                
         }
-      })
-      if (post) {
-        res.send("Deleted")
+        })
+      
+      
+     
+          //const deleteImg = await fs.emptyDir (imgFolderPath);
+
+      
+      
+      
       } else {
         const error = new Error(`post with id ${req.params.id} not found`)
         error.httpStatusCode = 404
@@ -97,7 +98,7 @@ router.post("/", async (req, res, next) => {
   // for upload (multiple)
   router.post("/:id/upload", upload.array("avatar"), async(req, res, next) =>{
       try {
-          const arrayOfPromises = req.files.map((file) => writeFile (join(imgFolderPath, file.originalname), file.buffer))
+          const arrayOfPromises = req.files.map((file) => writeFile (join(imgFolderPath, `${req.params.id}.png`), file.buffer))
           await Promise.all(arrayOfPromises)
           res.send(200).send("uploaded")
       } catch (e) {

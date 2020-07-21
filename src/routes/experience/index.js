@@ -3,18 +3,45 @@ const ExperienceModel = require("./schema");
 const multer = require("multer");
 const { join } = require("path");
 const fs = require("fs-extra");
+const json2csv = require("json2csv");
 
 const router = express.Router();
 const upload = multer();
 
 const imgPath = join(__dirname, "../../../public/img/experiences");
 
+router.get("/:username/experiences/CSV", async (req, res, next) => {
+  const fields = [
+    "role",
+    "company",
+    "startDate",
+    "endDate",
+    "description",
+    "area",
+    "username",
+    "image",
+  ];
+  const opts = { fields };
+  try {
+    const experiences = await ExperienceModel.find();
+    const csv = json2csv.parse(experiences, opts);
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=experiences.csv"
+    );
+    res.send(csv);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/:username/experiences", async (req, res, next) => {
   try {
     const getAllExp = await ExperienceModel.find({
       username: req.params.username,
     });
-    if (getAllExp) res.status(200).send(getAllExp);
+
+    if (getAllExp.length > 0) res.status(200).send(getAllExp);
     else res.status(404).send("Not found");
   } catch (error) {
     next(error);

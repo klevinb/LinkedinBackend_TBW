@@ -25,12 +25,13 @@
     "express-list-endpoints": "^5.0.0",
     "fs-extra": "^9.0.1",
     "json2csv": "^5.0.1",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.25",
     "multer": "^1.4.2",
     "pdfkit": "^0.11.0",
+    "pump": "^3.0.0",
     "query-to-mongo": "^0.10.1",
-    "validator": "^13.1.1",
-    "pump": "^3.0.0"
+    "validator": "^13.1.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"

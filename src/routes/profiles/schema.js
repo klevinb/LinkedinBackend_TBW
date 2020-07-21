@@ -7,10 +7,24 @@ const profileSchema = new Schema(
     name: {
       type: String,
       required: true,
+      validate: {
+        validator: (value) => {
+            if (!validation.isLength(value, { min: 2 })) {
+                throw new Error("Name should be at least 2 characters long!")
+            }
+        }
+    }
     },
     surname: {
       type: String,
       required: true,
+      validate: {
+        validator: (value) => {
+            if (!validation.isLength(value, { min: 2 })) {
+                throw new Error("Name should be at least 2 characters long!")
+            }
+        }
+    }
     },
     email: {
       type: String,

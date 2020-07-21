@@ -4,9 +4,13 @@ const router = express.Router()
 const multer = require("multer")
 const upload = multer({})
 const { join } = require("path")
-const { writeFile } = require("fs")
+const { writeFile } = require("fs-extra")
+const fs = require('fs-extra')
 
-const imgFolderPath = join(__dirname, "../../public/")
+const imgFolderPath = join(__dirname, "../../public/img/posts/")
+const imgFolderPath1 = join(__dirname, "../../public/img/posts/Koala.jpg")
+
+
 
 router.get("/", async(req, res, next) => {
     try {
@@ -15,6 +19,24 @@ router.get("/", async(req, res, next) => {
     } catch (error) {
         next(error)
     }
+})
+
+router.get("/:id", async(req, res, next) => {
+  try {
+    const id = req.params.id
+    const post = await PostsModel.findById(id)
+    if (post) {
+      res.send(post)
+    } else {
+      const error = new Error()
+      //error.httpStatusCode = 404
+      next(error)
+    }
+  } catch (error) {
+    console.log(error)
+    next("While reading post a problem occurred!")
+    
+  }
 })
 router.post("/", async (req, res, next) => {
     try {
@@ -44,7 +66,22 @@ router.post("/", async (req, res, next) => {
   
   router.delete("/:id", async (req, res, next) => {
     try {
-      const post = await PostsModel.findByIdAndDelete(req.params.id)
+      const post = await PostsModel.findByIdAndDelete(req.params.id, async (err) => {
+        if(err) {
+          console.log(err)
+
+        } else {
+         /*  fs.unlink(imgFolderPath+req.file.filename, (err) => {
+            if (err) {
+              console.log("failed to delete local image:"+err);
+          } else {
+              console.log('successfully deleted local image');                                
+          }
+          }) */
+          const deleteImg = await fs.emptyDir (imgFolderPath);
+
+        }
+      })
       if (post) {
         res.send("Deleted")
       } else {
@@ -60,12 +97,26 @@ router.post("/", async (req, res, next) => {
   // for upload (multiple)
   router.post("/:id/upload", upload.array("avatar"), async(req, res, next) =>{
       try {
-          const arrayOfPromises = req.files.map((file) =>
-          writeFile(join(imgFolderPath, file.originalname), file.buffer))
+          const arrayOfPromises = req.files.map((file) => writeFile (join(imgFolderPath, file.originalname), file.buffer))
           await Promise.all(arrayOfPromises)
           res.send(200).send("uploaded")
       } catch (e) {
         next(e)          
       }
   })
+
+  router.get('/:id/delete', async (req, res) => {
+    try{      
+      const imgDelete = await PostsModel.findById({ _id: req.params.id},function(err,data){ 
+        if (err) throw err;
+        fs.emptyDir (imgFolderPath);
+     })
+     res.send("Deleted")
+     }catch(err){
+      console.log(err);
+     }
+});
+
+
+
 module.exports = router

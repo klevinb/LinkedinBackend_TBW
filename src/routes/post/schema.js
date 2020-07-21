@@ -7,17 +7,17 @@ const PostSchema = new Schema({
     
     text: {
       type: String,
-      required: true,
+      required: [true, "Please put the text for the post"],
     },
     image: String,
     username: {
       type: String,
-      required: true,
+      required: [true, "Please add the name of user"],
     },   
     user: { 
       type: Schema.Types.ObjectId, 
       ref: "profile",
-      required: true,
+      required: [true, "Please add the id of user"],
    },
     
 },

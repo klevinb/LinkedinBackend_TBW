@@ -42,6 +42,7 @@ router.post("/", async (req, res, next) => {
     try {
       const newPost = new PostsModel(req.body)
       const { _id } = await newPost.save()
+      //{ runValidators: true }
   
       res.status(201).send(_id)
     } catch (error) {

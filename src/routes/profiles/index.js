@@ -24,10 +24,12 @@ router.get("/", async (req, res, next) => {
       .skip(query.options.skip)
       .limit(query.options.limit)
       .sort(query.options.sort);
-    res.send({
-      data: profiles,
-      total: profiles.length,
-    });
+    if (profiles.length > 0)
+      res.send({
+        data: profiles,
+        total: profiles.length,
+      });
+    else res.status(404).send("Not found!");
   } catch (error) {
     next(error);
   }
@@ -55,7 +57,6 @@ router.post("/", async (req, res, next) => {
     const newProfile = new profileSchema(req.body);
     const response = await newProfile.save();
     res.status(201).send(response);
-    console.log(response);
   } catch (error) {
     next(error);
   }
@@ -67,7 +68,6 @@ router.put("/:id", async (req, res, next) => {
       req.params.id,
       req.body
     );
-    console.log(updatedprofile);
     if (updatedprofile) {
       res.send(updatedprofile);
     } else {

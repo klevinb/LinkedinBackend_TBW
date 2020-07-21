@@ -30,7 +30,7 @@
     "pdfkit": "^0.11.0",
     "query-to-mongo": "^0.10.1",
     "validator": "^13.1.1",
-    "pump": "^3.0.0",
+    "pump": "^3.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"

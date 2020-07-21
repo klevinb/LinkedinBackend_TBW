@@ -73,16 +73,27 @@ router.delete("/:id", async (req, res, next) => {
 });
 
 // for upload (multiple)
-router.post("/:id/upload", upload.array("avatar"), async (req, res, next) => {
+router.post("/:id/upload", upload.array("avatar"), async(req, res, next) =>{
   try {
-    const arrayOfPromises = req.files.map((file) =>
-      writeFile(join(imgFolderPath, `${req.params.id}.png`), file.buffer)
-    );
-    await Promise.all(arrayOfPromises);
-    res.status(200).send("uploaded");
-  } catch (e) {
-    next(e);
-  }
-});
+   const arrayOfPromises = req.files.map((file) => writeFile (join(imgFolderPath, `${req.params.id}.png`), file.buffer))
+   /* await fs.writeFile(
+     join(imgFolderPath, `${req.params.id}.png`),
+     file.buffer
+   ); */
+
+   const savePicture = await PostsModel.findByIdAndUpdate(
+     { _id: req.params.id },
+     {
+       image: `http://localhost:${process.env.PORT}/img/posts/${req.params.id}.png`,
+     }
+   );
+   if (savePicture) res.status(201).send("Uploaded");
+   else res.status(400).send("Something went wrong");
+ } catch (error) {
+   console.log(error);
+ }
+}
+)
+
 
 module.exports = router;

@@ -14,6 +14,7 @@ const { json } = require("express");
 
 const upload = multer();
 const imagePath = path.join(__dirname, "../../../public/img/profiles");
+const expPath = path.join(__dirname, "../../../public/img/experiences");
 const pdfPath = path.join(__dirname, "../../public/pdf/profile");
 
 router.get("/", async (req, res, next) => {
@@ -159,10 +160,22 @@ router.get("/:username/pdf", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:username", async (req, res, next) => {
   try {
-    const profile = await profileSchema.findByIdAndDelete(req.params.id);
+    const profile = await profileSchema.findOneAndDelete({
+      username: req.params.username,
+    });
     if (profile) {
+      const findExp = await ExperienceModel.find({
+        username: profile.username,
+      });
+
+      await findExp.forEach(async (exp) => {
+        fs.unlink(join(expPath, `${exp._id}.png`));
+        await ExperienceModel.findByIdAndDelete(exp._id);
+      });
+
+      fs.unlink(join(imagePath, `${profile._id}.png`));
       res.send("Deleted");
     } else {
       const error = new Error(`profile with id ${req.params.id} not found`);

@@ -10,7 +10,7 @@ const doc = new pdfdocument;
 
 
 const upload = multer();
-const imagePath = path.join(__dirname, "../../public/img/profile");
+const imagePath = path.join(__dirname, "../../../public/img/profiles");
 const pdfPath = path.join(__dirname, "../../public/pdf/profile");
 
 router.get("/", async (req, res, next) => {
@@ -106,17 +106,23 @@ router.get("/:username/pdf", async (req, res, next) => {
       username: req.params.username,
     });
     if(profile){
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=${profile.name}.pdf`
+      )
       
-      doc.pipe(fs.createWriteStream('output.pdf'));
-      doc.font('Times-Roman')
-            .fontSize(24)
-            .text(`${profile.name} ${profile.surname}`)
-            // .image(src=`${profile.image}`, {
-            //   fit: [250, 300],
-            //   align: 'center',
-            //   valign: 'center'
-            // });
-      doc.end();
+    doc.pipe(fs.createWriteStream('output.pdf'))
+    doc.font('Times-Roman')
+    doc.fontSize(24)
+    doc.text(`${profile.name} ${profile.surname}`)
+    // doc.image(imagePath,`${profile._id}.png`, {
+    //   fit: [250, 300],
+    //   align: 'center',
+    //   valign: 'center'
+    // })
+    doc.pipe(res)
+    doc.end();
+    
     
     }
     

@@ -5,9 +5,10 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs-extra");
-const pdfdocument = require('pdfkit');
-const doc = new pdfdocument;
-
+const pdfdocument = require("pdfkit");
+const doc = new pdfdocument();
+const json2csv = require("json2csv");
+const ExperienceModel = require("../experience/schema");
 
 const upload = multer();
 const imagePath = path.join(__dirname, "../../public/img/profile");
@@ -105,23 +106,21 @@ router.get("/:username/pdf", async (req, res, next) => {
     const profile = await profileSchema.findOne({
       username: req.params.username,
     });
-    if(profile){
-      
-      doc.pipe(fs.createWriteStream('output.pdf'));
-      doc.font('Times-Roman')
-            .fontSize(24)
-            .text(`${profile.name} ${profile.surname}`)
-            // .image(src=`${profile.image}`, {
-            //   fit: [250, 300],
-            //   align: 'center',
-            //   valign: 'center'
-            // });
-      doc.end();
-    
-    }
-    
-    
+    if (profile) {
+      const getExp = await ExperienceModel.find({ username: profile.username });
 
+      doc.pipe(fs.createWriteStream("output.pdf"));
+      doc
+        .font("Times-Roman")
+        .fontSize(24)
+        .text(`${profile.name} ${profile.surname}`);
+      // .image(src=`${profile.image}`, {
+      //   fit: [250, 300],
+      //   align: 'center',
+      //   valign: 'center'
+      // });
+      doc.end();
+    }
   } catch (error) {
     next(error);
   }

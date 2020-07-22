@@ -12,7 +12,10 @@ router.post("/login", async (req, res, next) => {
         { email: req.body.username, password: req.body.password },
       ],
     });
-    if (userTrue) res.status(201).json({ token: userTrue.token });
+    if (userTrue)
+      res
+        .status(201)
+        .json({ token: userTrue.token, username: userTrue.username });
     else res.status(404).send("Incorrent email or password");
   } catch (error) {
     next(error);

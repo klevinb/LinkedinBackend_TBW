@@ -30,7 +30,7 @@ router.get("/", async (req, res, next) => {
         data: profiles,
         total: profiles.length,
       });
-    else res.status(404).send("Not found!");
+    else res.status(404).send([]);
   } catch (error) {
     next(error);
   }
@@ -81,28 +81,35 @@ router.put("/:id", async (req, res, next) => {
   }
 });
 
-router.post("/:id/upload", upload.single("profile"), async (req, res, next) => {
-  try {
-    if (req.file) {
-      await fs.writeFile(
-        path.join(imagePath, `${req.params.id}.png`),
-        req.file.buffer
-      );
+router.post(
+  "/:username/upload",
+  upload.single("profile"),
+  async (req, res, next) => {
+    try {
+      if (req.file) {
+        await fs.writeFile(
+          path.join(imagePath, `${req.params.username}.png`),
+          req.file.buffer
+        );
 
-      const profile = await profileSchema.findByIdAndUpdate(req.params.id, {
-        image: `http://127.0.0.1:${process.env.PORT}/img/profile/${req.params.id}.png`,
-      });
-      res.status(200).send("Done");
-    } else {
-      const err = new Error();
-      err.httpStatusCode = 400;
-      err.message = "Image file missing!";
-      next(err);
+        const profile = await profileSchema.findOneAndUpdate(
+          { username: req.params.username },
+          {
+            image: `http://127.0.0.1:${process.env.PORT}/img/profiles/${req.params.username}.png`,
+          }
+        );
+        res.status(200).send("Done");
+      } else {
+        const err = new Error();
+        err.httpStatusCode = 400;
+        err.message = "Image file missing!";
+        next(err);
+      }
+    } catch (error) {
+      next(error);
     }
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 router.get("/:username/pdf", async (req, res, next) => {
   try {

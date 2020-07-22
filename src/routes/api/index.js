@@ -7,6 +7,6 @@ const router = express.Router();
 
 router.use("/profile", profileRoutes);
 router.use("/profile", expRoutes);
-router.use("/post", postRoutes);
+router.use("/posts", postRoutes);
 
 module.exports = router;

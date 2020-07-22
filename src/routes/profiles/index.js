@@ -10,6 +10,7 @@ const doc = new pdfdocument();
 const json2csv = require("json2csv");
 const { join } = require("path");
 const ExperienceModel = require("../experience/schema");
+const UserModel = require("../authorization/schema");
 const { json } = require("express");
 
 const upload = multer();
@@ -31,6 +32,29 @@ router.get("/", async (req, res, next) => {
         total: profiles.length,
       });
     else res.status(404).send([]);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/me", async (req, res, next) => {
+  try {
+    const bearerHeaders = req.headers["authorization"];
+    const bearer = bearerHeaders.split(" ");
+    const token = bearer[1];
+    console.log(token);
+
+    const user = await UserModel.findOne({ token });
+    const profile = await profileSchema.findOne({
+      username: user.username,
+    });
+    if (profile) {
+      res.send(profile);
+    } else {
+      const error = new Error();
+      error.httpStatusCode = 404;
+      next(error);
+    }
   } catch (error) {
     next(error);
   }

@@ -42,7 +42,7 @@ router.get("/:username/experiences", async (req, res, next) => {
     });
 
     if (getAllExp.length > 0) res.status(200).send(getAllExp);
-    else res.status(404).send("Not found");
+    else res.status(200).send([]);
   } catch (error) {
     next(error);
   }

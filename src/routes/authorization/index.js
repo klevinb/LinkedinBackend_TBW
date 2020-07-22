@@ -30,7 +30,7 @@ router.post("/signup", async (req, res, next) => {
     jwt.sign({ addUser }, process.env.SECRET_KEY, async (err, token) => {
       if (!err) {
         await UserModel.findByIdAndUpdate({ _id: addUser._id }, { token });
-        res.status(201).json({ token });
+        res.status(201).json({ token, addUser });
       } else {
         res.status(400).send("Something went wrong!");
       }

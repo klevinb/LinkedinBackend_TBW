@@ -6,12 +6,13 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs-extra");
 const pdfdocument = require("pdfkit");
-const doc = new pdfdocument();
 const json2csv = require("json2csv");
 const { join } = require("path");
 const ExperienceModel = require("../experience/schema");
 const UserModel = require("../authorization/schema");
 const { json } = require("express");
+const { restart } = require("nodemon");
+const pump = require("pump");
 
 const upload = multer();
 const imagePath = path.join(__dirname, "../../../public/img/profiles");
@@ -145,8 +146,12 @@ router.get("/:username/pdf", async (req, res, next) => {
       "Content-Disposition",
       `attachment; filename=${profile.name}.pdf`
     );
-    const photo = join(imagePath, `${profile._id}.png`);
-    doc.pipe(fs.createWriteStream("output.pdf"));
+
+    let photo = "";
+    if (fs.existsSync(join(imagePath, `${req.params.username}.png`))) {
+      photo = join(imagePath, `${req.params.username}.png`);
+    }
+    const doc = new pdfdocument();
     doc.font("Times-Roman");
     doc.fontSize(18);
     doc.image(photo, 88, 30, {
@@ -178,12 +183,6 @@ router.get("/:username/pdf", async (req, res, next) => {
         align: "center",
       }
     );
-
-    // doc.image(imagePath,`${profile._id}.png`, {
-    //   fit: [250, 300],
-    //   align: 'center',
-    //   valign: 'center'
-    // })
     doc.pipe(res);
     doc.end();
   } catch (error) {

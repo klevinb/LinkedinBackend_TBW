@@ -27,10 +27,13 @@ server.use(generalError);
 console.log(listEndpoints(server));
 
 mongoose
-  .connect("mongodb://localhost:27017/LinkedinBackend_TBW", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.dn7fa.mongodb.net/${process.env.DB_NAME}`,
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
   .then(
     server.listen(port, () => {
       console.log(`Server running on port : ${port}`);

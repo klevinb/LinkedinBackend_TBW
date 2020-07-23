@@ -196,18 +196,30 @@ router.get("/:username/pdf", async (req, res, next) => {
         doc.image(body, 88, 30, {
           fit: [100, 100],
         });
-      console.log("DONE");
     });
 
-    doc.font("Times-Roman");
+    doc.font("Helvetica-Bold");
     doc.fontSize(18);
 
-    doc.text(`${profile.name} ${profile.surname}`, {
+    doc.text(`${profile.name} ${profile.surname}`, 100, 140, {
       width: 410,
       align: "center",
     });
-    doc.text(" ");
-    doc.text("Experiences", {
+    doc.fontSize(12);
+    doc.font("Helvetica");
+    doc.text(
+      `
+    ${profile.title}
+    ${profile.area}
+    ${profile.email}`,
+      360,
+      180,
+      {
+        align: "left",
+      }
+    );
+    doc.fontSize(18);
+    doc.text("Experiences", 100, 270, {
       width: 410,
       align: "center",
     });
@@ -228,6 +240,11 @@ router.get("/:username/pdf", async (req, res, next) => {
         align: "center",
       }
     );
+    let grad = doc.linearGradient(50, 0, 350, 100);
+    grad.stop(0, "#0077B5").stop(1, "#004451");
+
+    doc.rect(0, 0, 70, 1000);
+    doc.fill(grad);
     // doc.pipe(res);
     // doc.end();
     setTimeout(() => {

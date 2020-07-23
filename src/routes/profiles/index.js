@@ -11,7 +11,7 @@ const ExperienceModel = require("../experience/schema");
 const UserModel = require("../authorization/schema");
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
-const request = require("request");
+const axios = require("axios");
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -191,15 +191,15 @@ router.get("/:username/pdf", async (req, res, next) => {
       `attachment; filename=${profile.name}.pdf`
     );
 
-    const addPhoto = request(
-      { url, encoding: null },
-      async (err, res, body) => {
-        if (!err)
-          doc.image(body, 88, 30, {
-            fit: [100, 100],
-          });
-      }
-    );
+    if (url.length > 0) {
+      const response = await axios.get(url, {
+        responseType: "arraybuffer",
+      });
+      const img = new Buffer(response.data, "base64");
+      doc.image(img, 88, 30, {
+        fit: [100, 100],
+      });
+    }
 
     doc.font("Helvetica-Bold");
     doc.fontSize(18);
@@ -253,9 +253,8 @@ router.get("/:username/pdf", async (req, res, next) => {
     doc.fill(grad);
 
     doc.pipe(res);
-    setTimeout(() => {
-      doc.end();
-    }, 700);
+
+    doc.end();
   } catch (error) {
     next(error);
   }

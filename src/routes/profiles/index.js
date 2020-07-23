@@ -6,18 +6,13 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs-extra");
 const pdfdocument = require("pdfkit");
-const json2csv = require("json2csv");
 const { join } = require("path");
 const ExperienceModel = require("../experience/schema");
 const UserModel = require("../authorization/schema");
-const { json } = require("express");
-const { restart } = require("nodemon");
-const pump = require("pump");
 
 const upload = multer();
 const imagePath = path.join(__dirname, "../../../public/img/profiles");
 const expPath = path.join(__dirname, "../../../public/img/experiences");
-const pdfPath = path.join(__dirname, "../../public/pdf/profile");
 
 router.get("/", async (req, res, next) => {
   try {
@@ -43,7 +38,6 @@ router.get("/me", async (req, res, next) => {
     const bearerHeaders = req.headers["authorization"];
     const bearer = bearerHeaders.split(" ");
     const token = bearer[1];
-    console.log(token);
 
     const user = await UserModel.findOne({ token });
     const profile = await profileSchema.findOne({
@@ -135,6 +129,35 @@ router.post(
     }
   }
 );
+router.post(
+  "/:username/upload/cover",
+  upload.single("cover"),
+  async (req, res, next) => {
+    try {
+      if (req.file) {
+        await fs.writeFile(
+          path.join(imagePath, `${req.params.username}Cover.png`),
+          req.file.buffer
+        );
+
+        const profile = await profileSchema.findOneAndUpdate(
+          { username: req.params.username },
+          {
+            cover: `http://127.0.0.1:${process.env.PORT}/img/profiles/${req.params.username}Cover.png`,
+          }
+        );
+        res.status(200).send("Done");
+      } else {
+        const err = new Error();
+        err.httpStatusCode = 400;
+        err.message = "Image file missing!";
+        next(err);
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 router.get("/:username/pdf", async (req, res, next) => {
   try {
@@ -147,16 +170,17 @@ router.get("/:username/pdf", async (req, res, next) => {
       `attachment; filename=${profile.name}.pdf`
     );
 
+    const doc = new pdfdocument();
     let photo = "";
     if (fs.existsSync(join(imagePath, `${req.params.username}.png`))) {
       photo = join(imagePath, `${req.params.username}.png`);
+      doc.image(photo, 88, 30, {
+        fit: [100, 100],
+      });
     }
-    const doc = new pdfdocument();
     doc.font("Times-Roman");
     doc.fontSize(18);
-    doc.image(photo, 88, 30, {
-      fit: [100, 100],
-    });
+
     doc.text(`${profile.name} ${profile.surname}`, {
       width: 410,
       align: "center",
@@ -200,12 +224,22 @@ router.delete("/:username", async (req, res, next) => {
         username: profile.username,
       });
 
+      const findUser = await UserModel.findOneAndDelete({
+        username: profile.username,
+      });
+
       await findExp.forEach(async (exp) => {
         fs.unlink(join(expPath, `${exp._id}.png`));
         await ExperienceModel.findByIdAndDelete(exp._id);
       });
 
-      fs.unlink(join(imagePath, `${profile._id}.png`));
+      if (fs.existsSync(join(imagePath, `${profile._id}.png`))) {
+        fs.unlink(join(imagePath, `${profile._id}.png`));
+      }
+      if (fs.existsSync(join(imagePath, `${req.params.username}Cover.png`))) {
+        fs.unlink(join(imagePath, `${req.params.username}Cover.png`));
+      }
+
       res.send("Deleted");
     } else {
       const error = new Error(`profile with id ${req.params.id} not found`);

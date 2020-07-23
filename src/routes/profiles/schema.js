@@ -1,6 +1,6 @@
 const { Schema } = require("mongoose");
 const mongoose = require("mongoose");
-const validation = require("validator")
+const validation = require("validator");
 
 const profileSchema = new Schema(
   {
@@ -9,36 +9,36 @@ const profileSchema = new Schema(
       required: true,
       validate: {
         validator: (value) => {
-            if (!validation.isLength(value, { min: 2 })) {
-                throw new Error("Name should be at least 2 characters long!")
-            }
-        }
-    }
+          if (!validation.isLength(value, { min: 2 })) {
+            throw new Error("Name should be at least 2 characters long!");
+          }
+        },
+      },
     },
     surname: {
       type: String,
       required: true,
       validate: {
         validator: (value) => {
-            if (!validation.isLength(value, { min: 2 })) {
-                throw new Error("Name should be at least 2 characters long!")
-            }
-        }
-    }
+          if (!validation.isLength(value, { min: 2 })) {
+            throw new Error("Name should be at least 2 characters long!");
+          }
+        },
+      },
     },
     email: {
       type: String,
       required: true,
       validate: {
         validator: async (value) => {
-            if (!validation.isEmail(value)) {
-                throw new Error("Email is invalid")
-            } else {
-                const checkEmail = await profileModel.findOne({ email: value })
-                if (checkEmail) {
-                    throw new Error("Email already existsts")
-                }
+          if (!validation.isEmail(value)) {
+            throw new Error("Email is invalid");
+          } else {
+            const checkEmail = await profileModel.findOne({ email: value });
+            if (checkEmail) {
+              throw new Error("Email already existsts");
             }
+          }
         },
       },
     },
@@ -57,17 +57,22 @@ const profileSchema = new Schema(
     image: {
       type: String,
     },
+    cover: {
+      type: String,
+    },
+    about: {
+      type: String,
+    },
     username: {
       type: String,
       required: true,
       validate: {
         validator: async (value) => {
-                const checkUsername = await profileModel.findOne({ username: value })
-                if (checkUsername) {
-                    throw new Error("Username already exists!")
-                }
-            }
-        
+          const checkUsername = await profileModel.findOne({ username: value });
+          if (checkUsername) {
+            throw new Error("Username already exists!");
+          }
+        },
       },
     },
   },
@@ -76,5 +81,5 @@ const profileSchema = new Schema(
   }
 );
 
-profileModel = mongoose.model("profile", profileSchema)
+profileModel = mongoose.model("profile", profileSchema);
 module.exports = profileModel;

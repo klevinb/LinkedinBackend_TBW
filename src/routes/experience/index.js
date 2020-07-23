@@ -23,7 +23,9 @@ router.get("/:username/experiences/CSV", async (req, res, next) => {
   ];
   const opts = { fields };
   try {
-    const experiences = await ExperienceModel.find();
+    const experiences = await ExperienceModel.find({
+      username: req.params.username,
+    });
     const csv = json2csv.parse(experiences, opts);
     res.setHeader(
       "Content-Disposition",

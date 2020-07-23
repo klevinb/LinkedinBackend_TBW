@@ -114,7 +114,7 @@ router.post(
         const profile = await profileSchema.findOneAndUpdate(
           { username: req.params.username },
           {
-            image: `http://127.0.0.1:${process.env.PORT}/img/profiles/${req.params.username}.png`,
+            image: `${process.env.LINK}:${process.env.PORT}/img/profiles/${req.params.username}.png`,
           }
         );
         res.status(200).send("Done");
@@ -143,7 +143,7 @@ router.post(
         const profile = await profileSchema.findOneAndUpdate(
           { username: req.params.username },
           {
-            cover: `http://127.0.0.1:${process.env.PORT}/img/profiles/${req.params.username}Cover.png`,
+            cover: `${process.env.LINK}:${process.env.PORT}/img/profiles/${req.params.username}Cover.png`,
           }
         );
         res.status(200).send("Done");

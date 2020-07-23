@@ -90,7 +90,7 @@ router.post(
       const savePicture = await ExperienceModel.findByIdAndUpdate(
         { _id: req.params.id },
         {
-          image: `http://localhost:${process.env.PORT}/img/experiences/${req.params.id}.png`,
+          image: `${process.env.LINK}:${process.env.PORT}/img/experiences/${req.params.id}.png`,
         }
       );
       if (savePicture) res.status(201).send("Uploaded");

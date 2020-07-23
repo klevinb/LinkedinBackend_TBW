@@ -120,7 +120,7 @@ router.post(
 
         cloudinary.uploader.upload(
           join(imagePath, `${req.params.username}.png`),
-          async function (err, result) {
+          async (err, result) => {
             if (!err) {
               const profile = await profileSchema.findOneAndUpdate(
                 { username: req.params.username },

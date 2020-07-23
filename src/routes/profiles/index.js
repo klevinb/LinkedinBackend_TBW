@@ -190,7 +190,6 @@ router.get("/:username/pdf", async (req, res, next) => {
         width: 410,
         align: "center",
       }
-      
     );
     let grad = doc.linearGradient(50, 0, 350, 100);
     grad.stop(0, '#0077B5')

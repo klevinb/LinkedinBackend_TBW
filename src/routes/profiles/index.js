@@ -191,12 +191,15 @@ router.get("/:username/pdf", async (req, res, next) => {
       `attachment; filename=${profile.name}.pdf`
     );
 
-    request({ url, encoding: null }, async (err, res, body) => {
-      if (!err)
-        doc.image(body, 88, 30, {
-          fit: [100, 100],
-        });
-    });
+    const addPhoto = request(
+      { url, encoding: null },
+      async (err, res, body) => {
+        if (!err)
+          doc.image(body, 88, 30, {
+            fit: [100, 100],
+          });
+      }
+    );
 
     doc.font("Helvetica-Bold");
     doc.fontSize(18);
@@ -224,33 +227,35 @@ router.get("/:username/pdf", async (req, res, next) => {
       align: "center",
     });
     doc.fontSize(12);
-    getExp.forEach(
-      (exp) =>
-        doc.text(`
-        Role: ${exp.role}
-        Company: ${exp.company}
-        Starting Date: ${exp.startDate.toString().slice(4, 15)}
-        Ending Date: ${exp.endDate.toString().slice(4, 15)}
-        Description: ${exp.description}
-        Area:  ${exp.area}
-        -------------------------------------------------------
-      `),
-      {
-        width: 410,
-        align: "center",
-      }
-    );
+    const start = async () => {
+      getExp.forEach(
+        async (exp) =>
+          doc.text(`
+          Role: ${exp.role}
+          Company: ${exp.company}
+          Starting Date: ${exp.startDate.toString().slice(4, 15)}
+          Description: ${exp.description}
+          Area:  ${exp.area}
+          -------------------------------------------------------
+        `),
+        {
+          width: 410,
+          align: "center",
+        }
+      );
+    };
+    await start();
+
     let grad = doc.linearGradient(50, 0, 350, 100);
     grad.stop(0, "#0077B5").stop(1, "#004451");
 
     doc.rect(0, 0, 70, 1000);
     doc.fill(grad);
-    // doc.pipe(res);
-    // doc.end();
+
+    doc.pipe(res);
     setTimeout(() => {
-      doc.pipe(res);
       doc.end();
-    }, 500);
+    }, 700);
   } catch (error) {
     next(error);
   }

@@ -28,10 +28,10 @@ const corsOptions = {
 };
 
 server.use(express.json());
-server.use(cors(corsOptions));
+server.use(cors());
 server.use(express.static(publicPath));
 
-server.use("/api", verifyToken, apiRoutes);
+server.use("/api", apiRoutes);
 server.use("/user", authorizeRoutes);
 
 server.use(notFound);

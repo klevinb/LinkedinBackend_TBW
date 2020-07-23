@@ -11,6 +11,7 @@ const ExperienceModel = require("../experience/schema");
 const UserModel = require("../authorization/schema");
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
+const request = require("request");
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -183,15 +184,21 @@ router.get("/:username/pdf", async (req, res, next) => {
       username: req.params.username,
     });
     const getExp = await ExperienceModel.find({ username: profile.username });
+    const doc = new pdfdocument();
+    const url = profile.image;
     res.setHeader(
       "Content-Disposition",
       `attachment; filename=${profile.name}.pdf`
     );
 
-    const doc = new pdfdocument();
-    doc.image(profile.image, 88, 30, {
-      fit: [100, 100],
+    request({ url, encoding: null }, async (err, res, body) => {
+      if (!err)
+        doc.image(body, 88, 30, {
+          fit: [100, 100],
+        });
+      console.log("DONE");
     });
+
     doc.font("Times-Roman");
     doc.fontSize(18);
 
@@ -221,8 +228,12 @@ router.get("/:username/pdf", async (req, res, next) => {
         align: "center",
       }
     );
-    doc.pipe(res);
-    doc.end();
+    // doc.pipe(res);
+    // doc.end();
+    setTimeout(() => {
+      doc.pipe(res);
+      doc.end();
+    }, 500);
   } catch (error) {
     next(error);
   }

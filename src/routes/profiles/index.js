@@ -9,6 +9,13 @@ const pdfdocument = require("pdfkit");
 const { join } = require("path");
 const ExperienceModel = require("../experience/schema");
 const UserModel = require("../authorization/schema");
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const upload = multer();
 const imagePath = path.join(__dirname, "../../../public/img/profiles");
@@ -105,16 +112,24 @@ router.post(
   upload.single("profile"),
   async (req, res, next) => {
     try {
+      console.log(req.file);
       if (req.file) {
         await fs.writeFile(
           path.join(imagePath, `${req.params.username}.png`),
           req.file.buffer
         );
 
-        const profile = await profileSchema.findOneAndUpdate(
-          { username: req.params.username },
-          {
-            image: `${process.env.LINK}/img/profiles/${req.params.username}.png`,
+        cloudinary.uploader.upload(
+          join(imagePath, `${req.params.username}.png`),
+          async function (err, result) {
+            if (!err) {
+              const profile = await profileSchema.findOneAndUpdate(
+                { username: req.params.username },
+                {
+                  image: result.secure,
+                }
+              );
+            }
           }
         );
         res.status(200).send("Done");
@@ -140,12 +155,20 @@ router.post(
           req.file.buffer
         );
 
-        const profile = await profileSchema.findOneAndUpdate(
-          { username: req.params.username },
-          {
-            cover: `${process.env.LINK}/img/profiles/${req.params.username}Cover.png`,
+        cloudinary.uploader.upload(
+          join(imagePath, `${req.params.username}Cover.png`),
+          async function (err, result) {
+            if (!err) {
+              const profile = await profileSchema.findOneAndUpdate(
+                { username: req.params.username },
+                {
+                  cover: `${process.env.LINK}/img/profiles/${req.params.username}Cover.png`,
+                }
+              );
+            }
           }
         );
+
         res.status(200).send("Done");
       } else {
         const err = new Error();

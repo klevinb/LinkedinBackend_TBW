@@ -10,6 +10,7 @@ const { join } = require("path");
 const ExperienceModel = require("../experience/schema");
 const UserModel = require("../authorization/schema");
 const cloudinary = require("cloudinary").v2;
+const streamifier = require("streamifier");
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -113,16 +114,13 @@ router.post(
   async (req, res, next) => {
     try {
       if (req.file) {
-        await fs.writeFile(
-          path.join(imagePath, `${req.params.username}.png`),
-          req.file.buffer
-        );
-
-        cloudinary.uploader.upload(
-          join(imagePath, `${req.params.username}.png`),
+        const cld_upload_stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "profiles",
+          },
           async (err, result) => {
             if (!err) {
-              const profile = await profileSchema.findOneAndUpdate(
+              await profileSchema.findOneAndUpdate(
                 { username: req.params.username },
                 {
                   image: result.secure_url,
@@ -131,6 +129,7 @@ router.post(
             }
           }
         );
+        streamifier.createReadStream(req.file.buffer).pipe(cld_upload_stream);
         res.status(200).send("Done");
       } else {
         const err = new Error();
@@ -149,16 +148,13 @@ router.post(
   async (req, res, next) => {
     try {
       if (req.file) {
-        await fs.writeFile(
-          path.join(imagePath, `${req.params.username}Cover.png`),
-          req.file.buffer
-        );
-
-        cloudinary.uploader.upload(
-          join(imagePath, `${req.params.username}Cover.png`),
-          async function (err, result) {
+        const cld_upload_stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "covers",
+          },
+          async (err, result) => {
             if (!err) {
-              const profile = await profileSchema.findOneAndUpdate(
+              await profileSchema.findOneAndUpdate(
                 { username: req.params.username },
                 {
                   cover: result.secure_url,
@@ -167,7 +163,7 @@ router.post(
             }
           }
         );
-
+        streamifier.createReadStream(req.file.buffer).pipe(cld_upload_stream);
         res.status(200).send("Done");
       } else {
         const err = new Error();
@@ -193,13 +189,9 @@ router.get("/:username/pdf", async (req, res, next) => {
     );
 
     const doc = new pdfdocument();
-    let photo = "";
-    if (fs.existsSync(join(imagePath, `${req.params.username}.png`))) {
-      photo = join(imagePath, `${req.params.username}.png`);
-      doc.image(photo, 88, 30, {
-        fit: [100, 100],
-      });
-    }
+    doc.image(profile.image, 88, 30, {
+      fit: [100, 100],
+    });
     doc.font("Times-Roman");
     doc.fontSize(18);
 

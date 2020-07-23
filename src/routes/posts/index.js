@@ -7,6 +7,8 @@ const upload = multer({});
 const { join } = require("path");
 const { writeFile } = require("fs-extra");
 const fs = require("fs-extra");
+const cloudinary = require("cloudinary").v2;
+const streamifier = require("streamifier");
 
 const imgFolderPath = join(__dirname, "../../../public/img/posts");
 
@@ -79,14 +81,24 @@ router.delete("/:id", async (req, res, next) => {
 // for upload (multiple)
 router.post("/:id/upload", upload.array("avatar"), async (req, res, next) => {
   try {
-    const arrayOfPromises = req.files.map((file) =>
-      writeFile(join(imgFolderPath, `${req.params.id}.png`), file.buffer)
-    );
-    await Promise.all(arrayOfPromises);
-    const addImage = await PostsModel.findByIdAndUpdate(req.params.id, {
-      image: `${process.env.LINK}/img/posts/${req.params.id}.png`,
-    });
-    res.status(200).send("uploaded");
+    if (req.file) {
+      const cld_upload_stream = cloudinary.uploader.upload_stream(
+        {
+          folder: "posts",
+        },
+        async (err, result) => {
+          if (!err) {
+            await PostsModel.findByIdAndUpdate(req.params.id, {
+              image: result.secure_url,
+            });
+          }
+        }
+      );
+      streamifier.createReadStream(req.file.buffer).pipe(cld_upload_stream);
+      res.status(200).send("Done");
+    } else {
+      res.sendStatus(400);
+    }
   } catch (e) {
     next(e);
   }

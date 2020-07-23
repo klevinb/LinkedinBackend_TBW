@@ -4,6 +4,8 @@ const multer = require("multer");
 const { join } = require("path");
 const fs = require("fs-extra");
 const json2csv = require("json2csv");
+const cloudinary = require("cloudinary").v2;
+const streamifier = require("streamifier");
 
 const router = express.Router();
 const upload = multer();
@@ -82,19 +84,30 @@ router.post(
   upload.single("picture"),
   async (req, res, next) => {
     try {
-      await fs.writeFile(
-        join(imgPath, `${req.params.id}.png`),
-        req.file.buffer
-      );
-
-      const savePicture = await ExperienceModel.findByIdAndUpdate(
-        { _id: req.params.id },
-        {
-          image: `${process.env.LINK}/img/experiences/${req.params.id}.png`,
-        }
-      );
-      if (savePicture) res.status(201).send("Uploaded");
-      else res.status(400).send("Something went wrong");
+      if (req.file) {
+        const cld_upload_stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "experiences",
+          },
+          async (err, result) => {
+            if (!err) {
+              await ExperienceModel.findByIdAndUpdate(
+                { _id: req.params.id },
+                {
+                  image: result.secure_url,
+                }
+              );
+            }
+          }
+        );
+        streamifier.createReadStream(req.file.buffer).pipe(cld_upload_stream);
+        res.status(200).send("Done");
+      } else {
+        const err = new Error();
+        err.httpStatusCode = 400;
+        err.message = "Image file missing!";
+        next(err);
+      }
     } catch (error) {
       console.log(error);
     }

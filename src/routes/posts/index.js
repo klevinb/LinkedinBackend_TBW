@@ -79,7 +79,7 @@ router.delete("/:id", async (req, res, next) => {
 });
 
 // for upload (multiple)
-router.post("/:id/upload", upload.array("avatar"), async (req, res, next) => {
+router.post("/:id/upload", upload.single("avatar"), async (req, res, next) => {
   try {
     if (req.file) {
       const cld_upload_stream = cloudinary.uploader.upload_stream(
@@ -88,19 +88,24 @@ router.post("/:id/upload", upload.array("avatar"), async (req, res, next) => {
         },
         async (err, result) => {
           if (!err) {
-            await PostsModel.findByIdAndUpdate(req.params.id, {
-              image: result.secure_url,
-            });
+            if (!err) {
+              await PostsModel.findByIdAndUpdate(req.params.id, {
+                image: result.secure_url,
+              });
+            }
           }
         }
       );
       streamifier.createReadStream(req.file.buffer).pipe(cld_upload_stream);
       res.status(200).send("Done");
     } else {
-      res.sendStatus(400);
+      const err = new Error();
+      err.httpStatusCode = 400;
+      err.message = "Image file missing!";
+      next(err);
     }
-  } catch (e) {
-    next(e);
+  } catch (error) {
+    next(error);
   }
 });
 

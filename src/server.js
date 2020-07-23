@@ -28,7 +28,7 @@ const corsOptions = {
 };
 
 server.use(express.json());
-server.use(cors());
+server.use(cors(corsOptions));
 server.use(express.static(publicPath));
 
 server.use("/api", verifyToken, apiRoutes);

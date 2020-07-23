@@ -121,17 +121,18 @@ router.post(
           },
           async (err, result) => {
             if (!err) {
-              await profileSchema.findOneAndUpdate(
+              let resp = await profileSchema.findOneAndUpdate(
                 { username: req.params.username },
                 {
                   image: result.secure_url,
                 }
               );
+              if (resp) res.status(200).send("Done");
+              else res.sendStatus(400);
             }
           }
         );
         streamifier.createReadStream(req.file.buffer).pipe(cld_upload_stream);
-        res.status(200).send("Done");
       } else {
         const err = new Error();
         err.httpStatusCode = 400;
@@ -155,17 +156,18 @@ router.post(
           },
           async (err, result) => {
             if (!err) {
-              await profileSchema.findOneAndUpdate(
+              let resp = await profileSchema.findOneAndUpdate(
                 { username: req.params.username },
                 {
                   cover: result.secure_url,
                 }
               );
+              if (resp) res.status(200).send("Done");
+              else res.sendStatus(400);
             }
           }
         );
         streamifier.createReadStream(req.file.buffer).pipe(cld_upload_stream);
-        res.status(200).send("Done");
       } else {
         const err = new Error();
         err.httpStatusCode = 400;

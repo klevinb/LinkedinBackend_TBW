@@ -112,7 +112,6 @@ router.post(
   upload.single("profile"),
   async (req, res, next) => {
     try {
-      console.log(req.file);
       if (req.file) {
         await fs.writeFile(
           path.join(imagePath, `${req.params.username}.png`),
@@ -126,7 +125,7 @@ router.post(
               const profile = await profileSchema.findOneAndUpdate(
                 { username: req.params.username },
                 {
-                  image: result.secure,
+                  image: result.secure_url,
                 }
               );
             }
@@ -162,7 +161,7 @@ router.post(
               const profile = await profileSchema.findOneAndUpdate(
                 { username: req.params.username },
                 {
-                  cover: `${process.env.LINK}/img/profiles/${req.params.username}Cover.png`,
+                  cover: result.secure_url,
                 }
               );
             }

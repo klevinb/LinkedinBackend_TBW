@@ -84,7 +84,7 @@ router.post("/:id/upload", upload.array("avatar"), async (req, res, next) => {
     );
     await Promise.all(arrayOfPromises);
     const addImage = await PostsModel.findByIdAndUpdate(req.params.id, {
-      image: `${process.env.LINK}:${process.env.PORT}/img/posts/${req.params.id}.png`,
+      image: `${process.env.LINK}/img/posts/${req.params.id}.png`,
     });
     res.status(200).send("uploaded");
   } catch (e) {

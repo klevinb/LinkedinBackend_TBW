@@ -7,8 +7,6 @@ const { join } = require("path");
 const { writeFile } = require("fs-extra");
 const fs = require("fs-extra");
 
-
-
 router.get("/", async (req, res, next) => {
   try {
     const comments = await CommentsModel.find(req.query).populate("user");
@@ -38,7 +36,6 @@ router.post("/", async (req, res, next) => {
   try {
     const newComment = new CommentsModel(req.body);
     const { _id } = await newComment.save();
-    //{ runValidators: true }
 
     res.status(201).send(_id);
   } catch (error) {
@@ -48,7 +45,10 @@ router.post("/", async (req, res, next) => {
 
 router.put("/:id", async (req, res, next) => {
   try {
-    const comment = await CommentsModel.findByIdAndUpdate(req.params.id, req.body);
+    const comment = await CommentsModel.findByIdAndUpdate(
+      req.params.id,
+      req.body
+    );
     if (comment) {
       res.send("Ok");
     } else {

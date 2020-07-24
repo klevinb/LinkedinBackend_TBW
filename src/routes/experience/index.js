@@ -72,7 +72,7 @@ router.post("/:username/experiences", async (req, res, next) => {
   try {
     const addExperience = new ExperienceModel(req.body);
     const { _id } = await addExperience.save();
-    if (addExperience) res.status(201).send(_id);
+    if (_id) res.status(201).send(_id);
     else res.status(400).send("Bad request");
   } catch (error) {
     next(error);
@@ -91,17 +91,17 @@ router.post(
           },
           async (err, result) => {
             if (!err) {
-              await ExperienceModel.findByIdAndUpdate(
+              let resp = await ExperienceModel.findByIdAndUpdate(
                 { _id: req.params.id },
                 {
                   image: result.secure_url,
                 }
               );
+              if (resp) res.sendStatus(200);
             }
           }
         );
         streamifier.createReadStream(req.file.buffer).pipe(cld_upload_stream);
-        res.status(200).send("Done");
       } else {
         const err = new Error();
         err.httpStatusCode = 400;

@@ -19,25 +19,26 @@ router.get("/", async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
   try {
     const id = req.params.id;
-    const comment = await CommentsModel.findById(id);
+    const comment = await CommentsModel.find({
+      postid: req.params.id,
+    }).populate("user");
     if (comment) {
       res.send(comment);
     } else {
-      const error = new Error();
-      error.httpStatusCode = 404;
-      next(error);
+      res.send([]);
     }
   } catch (error) {
     console.log(error);
     next("While reading comment a problem occurred!");
   }
 });
+
 router.post("/", async (req, res, next) => {
   try {
     const newComment = new CommentsModel(req.body);
     const { _id } = await newComment.save();
 
-    res.status(201).send(_id);
+    if (_id) res.sendStatus(200);
   } catch (error) {
     next(error);
   }

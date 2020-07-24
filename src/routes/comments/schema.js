@@ -9,9 +9,9 @@ const CommentSchema = new Schema(
       type: String,
       required: [true, "Please comment, if you have any suggestion"],
     },
-    username: {
+    postid: {
       type: String,
-      required: [true, "Please add the name of user"],
+      required: [true, "Please add the id of the post"],
     },
     user: {
       type: Schema.Types.ObjectId,

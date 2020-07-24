@@ -97,7 +97,8 @@ router.post(
                   image: result.secure_url,
                 }
               );
-              if (resp) res.sendStatus(200);
+              if (resp) res.status(200).send("Done");
+              else res.sendStatus(400);
             }
           }
         );

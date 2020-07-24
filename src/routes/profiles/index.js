@@ -91,10 +91,10 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.put("/:id", async (req, res, next) => {
+router.put("/:username", async (req, res, next) => {
   try {
-    const updatedprofile = await profileSchema.findByIdAndUpdate(
-      req.params.id,
+    const updatedprofile = await profileSchema.findOne(
+      { username: req.params.username },
       req.body
     );
     if (updatedprofile) {

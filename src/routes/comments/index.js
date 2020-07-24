@@ -18,7 +18,20 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:id", async (req, res, next) => {
   try {
-    const id = req.params.id;
+    const comment = await CommentsModel.findById(req.params.id);
+    if (comment) {
+      res.send(comment);
+    } else {
+      res.send([]);
+    }
+  } catch (error) {
+    console.log(error);
+    next("While reading comment a problem occurred!");
+  }
+});
+
+router.get("/posts/:id", async (req, res, next) => {
+  try {
     const comment = await CommentsModel.find({
       postid: req.params.id,
     }).populate("user");

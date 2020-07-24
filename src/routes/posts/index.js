@@ -14,7 +14,9 @@ const imgFolderPath = join(__dirname, "../../../public/img/posts");
 
 router.get("/", async (req, res, next) => {
   try {
-    const posts = await PostsModel.find(req.query).populate("user");
+    const posts = await PostsModel.find(req.query)
+      .populate("user")
+      .populate("likes");
     res.send(posts);
   } catch (error) {
     next(error);
@@ -37,6 +39,37 @@ router.get("/:id", async (req, res, next) => {
     next("While reading post a problem occurred!");
   }
 });
+
+router.post("/add/:id/like/:username", async (req, res, next) => {
+  try {
+    const post = await PostsModel.findById(req.params.id);
+    if (post) {
+      if (post.likes) {
+        const checkLike = post.likes.find(
+          (like) => like == req.params.username
+        );
+
+        if (checkLike) {
+          const removeUser = await PostsModel.findByIdAndUpdate(req.params.id, {
+            $pull: { likes: req.params.username },
+          });
+          if (removeUser) res.sendStatus(200);
+        } else {
+          const addUser = await PostsModel.findOneAndUpdate(
+            { _id: req.params.id },
+            {
+              $addToSet: { likes: req.params.username },
+            }
+          );
+          if (addUser) res.sendStatus(200);
+        }
+      }
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post("/", async (req, res, next) => {
   try {
     const user = await ProfileModel.findOne({ username: req.body.username });

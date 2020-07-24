@@ -19,6 +19,7 @@ const PostSchema = new Schema(
       ref: "profile",
       required: [true, "Please add the id of user"],
     },
+    likes: [{ type: Schema.Types.ObjectId, ref: "profile" }],
   },
   { timestamps: true }
 );

@@ -93,12 +93,12 @@ router.post("/", async (req, res, next) => {
 
 router.put("/:username", async (req, res, next) => {
   try {
-    const updatedprofile = await profileSchema.findOne(
+    const updatedprofile = await profileSchema.findOneAndUpdate(
       { username: req.params.username },
       req.body
     );
     if (updatedprofile) {
-      res.send(updatedprofile);
+      res.sendStatus(200);
     } else {
       const error = new Error(`profile with id ${req.params.id} not found`);
       error.httpStatusCode = 404;
